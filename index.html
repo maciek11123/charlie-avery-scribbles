@@ -10,92 +10,88 @@
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
-    --paper:#f6efe2; --paper-deep:#ece2cf; --ink:#3a3026; --ink-soft:#6f6354;
+    --paper:#f6efe2; --ink:#3a3026; --ink-soft:#6f6354;
     --crayon-red:#e2574c; --crayon-blue:#3f7cac; --crayon-yellow:#f0b429;
     --crayon-green:#5aa469; --crayon-purple:#8a6ab0; --stage:#fbf7ee;
     --shadow:rgba(58,48,38,.16);
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{height:100%;margin:0}
-  body{
-    font-family:'Nunito',system-ui,sans-serif;color:var(--ink);
-    background:radial-gradient(circle at 18% 12%, #fcf8ef 0%, transparent 40%), var(--paper);
-    overflow:hidden;position:fixed;inset:0;touch-action:manipulation;
-    display:flex;align-items:center;justify-content:center;padding:24px;
-  }
-  body::before{
-    content:"";position:fixed;inset:0;pointer-events:none;opacity:.35;
-    background-image:linear-gradient(transparent 27px, #d9cdb6 28px);
-    background-size:100% 28px;
-    -webkit-mask-image:linear-gradient(180deg,transparent,#000 12%,#000 88%,transparent);
-    mask-image:linear-gradient(180deg,transparent,#000 12%,#000 88%,transparent);
-  }
-  .wrap{position:relative;display:flex;flex-direction:column;align-items:center;
-        animation:fade .4s ease both;max-width:520px;width:100%}
-  @keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  body{font-family:'Nunito',system-ui,sans-serif;color:var(--ink);
+       background:var(--paper);overflow:hidden;position:fixed;inset:0;
+       display:flex;flex-direction:column}
 
-  h1{font-family:'Fredoka';font-weight:700;margin:0;letter-spacing:-.5px;
-     line-height:.95;text-align:center}
-  .title-main{font-size:clamp(30px,8vw,52px)}
-  .title-sub{font-size:clamp(40px,11vw,72px);margin-top:2px}
-  h1 .amp{color:var(--ink-soft);font-weight:500;font-size:.7em;vertical-align:.05em}
-  h1 .a{color:var(--crayon-red)} h1 .b{color:var(--crayon-blue)}
-  h1 .c{color:var(--crayon-green)} h1 .d{color:var(--crayon-yellow)}
-  h1 .e{color:var(--crayon-purple)}
-  .title-main span,.title-sub span{display:inline-block}
-  .title-main span:nth-child(odd){transform:rotate(-3deg)}
-  .title-main span:nth-child(even){transform:rotate(2deg)}
-  .title-sub span:nth-child(odd){transform:rotate(2deg)}
-  .title-sub span:nth-child(even){transform:rotate(-3deg)}
+  /* ---- branded top bar ---- */
+  .bar{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;
+       gap:12px;padding:9px 16px;background:var(--stage);
+       border-bottom:2.5px solid var(--ink);box-shadow:0 3px 0 var(--shadow);z-index:2}
+  .brand{font-family:'Fredoka';font-weight:700;font-size:clamp(17px,4.5vw,22px);
+         display:flex;align-items:center;gap:8px;letter-spacing:-.3px;white-space:nowrap}
+  .brand .a{color:var(--crayon-red)} .brand .b{color:var(--crayon-blue)}
+  .brand .c{color:var(--crayon-green)} .brand .d{color:var(--crayon-yellow)}
+  .brand .e{color:var(--crayon-purple)}
+  .brand .mask{font-size:1.15em;transform:rotate(-6deg);display:inline-block}
+  .full{font-family:'Fredoka';font-weight:600;font-size:14px;color:var(--ink);
+        background:var(--paper);border:2px solid var(--ink);border-radius:12px;
+        padding:7px 13px;box-shadow:2px 3px 0 var(--shadow);cursor:pointer;
+        text-decoration:none;white-space:nowrap}
+  .full:active{transform:translate(2px,2px);box-shadow:0 0 0 var(--shadow)}
 
-  .tag{font-family:'Fredoka';font-weight:500;color:var(--ink-soft);
-       font-size:clamp(15px,4vw,20px);margin:14px 0 0;text-align:center;max-width:30ch}
+  /* ---- stage / iframe ---- */
+  .stage{flex:1;position:relative;min-height:0}
+  iframe{width:100%;height:100%;border:0;display:block;background:#fff}
 
-  .card{background:var(--stage);border:2.5px solid var(--ink);
-        border-radius:26px 22px 28px 20px;box-shadow:6px 7px 0 var(--shadow);
-        padding:24px 26px;margin-top:26px;width:100%}
-  .steps{display:flex;flex-direction:column;gap:14px}
-  .step{display:flex;align-items:center;gap:14px;font-family:'Fredoka';font-weight:500;font-size:17px}
-  .dot{flex:0 0 auto;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;
-       font-family:'Fredoka';font-weight:700;color:#fff;font-size:18px;box-shadow:2px 2px 0 var(--shadow)}
-  .step:nth-child(1) .dot{background:var(--crayon-red);transform:rotate(-4deg)}
-  .step:nth-child(2) .dot{background:var(--crayon-blue);transform:rotate(3deg)}
-  .step:nth-child(3) .dot{background:var(--crayon-green);transform:rotate(-2deg)}
+  /* loading splash over iframe until it loads */
+  .splash{position:absolute;inset:0;display:flex;flex-direction:column;
+          align-items:center;justify-content:center;gap:18px;background:var(--paper);
+          transition:opacity .4s ease}
+  .splash.gone{opacity:0;pointer-events:none}
+  .loader{width:84px;height:84px;position:relative}
+  .loader span{position:absolute;inset:0;border-radius:50%;border:5px solid transparent}
+  .loader span:nth-child(1){border-top-color:var(--crayon-red);animation:spin 1s linear infinite}
+  .loader span:nth-child(2){border-right-color:var(--crayon-blue);animation:spin 1.4s linear infinite reverse}
+  .loader span:nth-child(3){inset:15px;border-bottom-color:var(--crayon-green);animation:spin .9s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .splash p{font-family:'Fredoka';font-weight:600;font-size:18px;color:var(--ink-soft);margin:0}
 
-  .btn{font-family:'Fredoka';font-weight:600;font-size:23px;color:#fff;cursor:pointer;
-       background:var(--crayon-red);border:2.5px solid var(--ink);
-       border-radius:18px 16px 20px 15px;padding:18px 36px;margin-top:30px;
-       box-shadow:4px 5px 0 var(--shadow);transition:transform .08s, box-shadow .08s;
-       display:inline-flex;align-items:center;gap:12px}
-  .btn:active{transform:translate(3px,4px);box-shadow:1px 1px 0 var(--shadow)}
-  .note{font-family:'Fredoka';font-weight:500;color:var(--ink-soft);
-        font-size:14px;margin-top:14px;text-align:center;opacity:.85}
+  /* fallback if the embed misbehaves */
+  .fallback{position:absolute;left:0;right:0;bottom:0;padding:10px 14px;
+            background:var(--stage);border-top:2px solid var(--ink);
+            font-family:'Fredoka';font-weight:500;font-size:13px;color:var(--ink-soft);
+            display:flex;align-items:center;justify-content:center;gap:6px;text-align:center}
+  .fallback a{color:var(--crayon-blue);font-weight:700;text-decoration:none}
 </style>
 </head>
 <body>
-  <div class="wrap">
-    <h1 class="title-main"><span class="a">C</span><span class="b">h</span><span class="c">a</span><span class="d">r</span><span class="e">l</span><span class="a">i</span><span class="b">e</span> <span class="amp">&amp;</span> <span class="c">A</span><span class="d">v</span><span class="e">e</span><span class="a">r</span><span class="b">y</span></h1>
-    <h1 class="title-sub"><span class="c">S</span><span class="d">c</span><span class="e">r</span><span class="a">i</span><span class="b">b</span><span class="c">b</span><span class="d">l</span><span class="e">e</span><span class="a">s</span></h1>
+  <div class="bar">
+    <div class="brand"><span class="mask">🎭</span>
+      <span><span class="a">Charlie</span> <span class="b">&amp;</span> <span class="c">Avery</span> <span class="d">Scribbles</span></span>
+    </div>
+    <a class="full" id="full" href="https://sketch.metademolab.com/" target="_blank" rel="noopener">Full screen ↗</a>
+  </div>
 
-    <p class="tag">Draw a character, snap a photo, and watch it come to life!</p>
+  <div class="stage">
+    <iframe id="frame"
+      src="https://sketch.metademolab.com/"
+      allow="camera; microphone; clipboard-read; clipboard-write; fullscreen"
+      referrerpolicy="no-referrer-when-downgrade"></iframe>
 
-    <div class="card">
-      <div class="steps">
-        <div class="step"><span class="dot">1</span><span>Draw a person on plain white paper</span></div>
-        <div class="step"><span class="dot">2</span><span>Spread the arms and legs apart</span></div>
-        <div class="step"><span class="dot">3</span><span>Tap below and follow the steps</span></div>
-      </div>
+    <div class="splash" id="splash">
+      <div class="loader"><span></span><span></span><span></span></div>
+      <p>Setting up the stage…</p>
     </div>
 
-    <button class="btn" id="go">✨ Start Animating</button>
-    <p class="note">Opens Meta's Animated Drawings to do the magic</p>
+    <div class="fallback">
+      Stuck? <a href="https://sketch.metademolab.com/" target="_blank" rel="noopener">Open it full screen ↗</a>
+    </div>
   </div>
 
 <script>
-  var META = "https://sketch.metademolab.com/";
-  document.getElementById('go').addEventListener('click', function(){
-    window.location.href = META;
-  });
+  var frame = document.getElementById('frame');
+  var splash = document.getElementById('splash');
+  // hide splash once the embed loads (or after a timeout as a safety net)
+  frame.addEventListener('load', function(){ splash.classList.add('gone'); });
+  setTimeout(function(){ splash.classList.add('gone'); }, 6000);
 </script>
 </body>
 </html>
